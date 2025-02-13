@@ -27,11 +27,11 @@ export default {
           foreground: "hsl(var(--popover-foreground))",
         },
         primary: {
-          DEFAULT: "#1a73e8",
+          DEFAULT: "rgb(var(--color-primary) / <alpha-value>)",
           dark: "#60a5fa",
         },
         secondary: {
-          DEFAULT: "#5f6368",
+          DEFAULT: "rgb(var(--color-secondary) / <alpha-value>)",
           dark: "#9ca3af",
         },
         muted: {
@@ -55,6 +55,26 @@ export default {
           3: "hsl(var(--chart-3))",
           4: "hsl(var(--chart-4))",
           5: "hsl(var(--chart-5))",
+        },
+        surface: {
+          DEFAULT: "rgb(var(--color-surface) / <alpha-value>)",
+          dim: "rgb(var(--color-surface-dim) / <alpha-value>)",
+          bright: "rgb(var(--color-surface-bright) / <alpha-value>)",
+          container: "rgb(var(--color-surface-container) / <alpha-value>)",
+          "container-low": "rgb(var(--color-surface-container-low) / <alpha-value>)",
+          "container-high": "rgb(var(--color-surface-container-high) / <alpha-value>)",
+        },
+        "on-primary": {
+          DEFAULT: "rgb(var(--color-on-primary) / <alpha-value>)",
+          container: "rgb(var(--color-on-primary-container) / <alpha-value>)",
+        },
+        "on-secondary": {
+          DEFAULT: "rgb(var(--color-on-secondary) / <alpha-value>)",
+          container: "rgb(var(--color-on-secondary-container) / <alpha-value>)",
+        },
+        "on-surface": {
+          DEFAULT: "rgb(var(--color-on-surface) / <alpha-value>)",
+          variant: "rgb(var(--color-on-surface-variant) / <alpha-value>)",
         },
       },
     },
