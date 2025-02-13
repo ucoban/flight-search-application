@@ -7,14 +7,14 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-surface text-on-surface">
-      <header className="bg-surface-container shadow-sm">
+    <div className="min-h-screen bg-background">
+      <header className="border-b">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-semibold text-on-surface">Flight Search</h1>
+          <h1 className="text-2xl font-semibold">Flight Search</h1>
           <ThemeToggle />
         </div>
       </header>
-      <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+      <main className="max-w-7xl mx-auto px-4">{children}</main>
     </div>
   );
 }
