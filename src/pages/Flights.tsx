@@ -1,4 +1,4 @@
-import { FlightSearch } from "@/components/FlightSearch";
+import FlightSearchWrapper from "@/components/FlightSearchWrapper";
 import { Hero } from "@/components/Hero";
 
 export function Flights() {
@@ -6,7 +6,7 @@ export function Flights() {
     <div className="flex flex-col items-center">
       <Hero />
       <div className="w-full max-w-4xl px-4">
-        <FlightSearch />
+        <FlightSearchWrapper />
       </div>
     </div>
   );
