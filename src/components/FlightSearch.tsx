@@ -1,14 +1,16 @@
-import { Input } from "@/components/ui/input";
-import leftRight from "@/assets/left-right.svg";
-import SVG from "react-inlinesvg";
-import { DatePickerWithRange } from "./ui/date-range-picker";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PassengerSelect } from "./PassengerSelect";
-import { useState } from "react";
-import { Button } from "./ui/button";
 import circleIcon from "@/assets/circle-icon.svg";
+import leftRight from "@/assets/left-right.svg";
 import locationIcon from "@/assets/location-icon.svg";
-import searchIcon from "@/assets/search-icon.svg";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAirportSearch, useFlightSearch } from "@/hooks/sky-scrapper";
+import type { Airport, Itinerary } from "@/types/sky-scrapper";
+import { useEffect, useState } from "react";
+import SVG from "react-inlinesvg";
+import { PassengerSelect } from "./PassengerSelect";
+import Autocomplete from "./ui/Autocomplete";
+import { Button } from "./ui/button";
+import { DatePickerWithRange } from "./ui/date-range-picker";
+import Spinner from "./ui/Spinner";
 
 type TripType = "round-trip" | "one-way" | "multi-city";
 type ClassType = "economy" | "premium-economy" | "business" | "first";
@@ -20,7 +22,11 @@ interface Passengers {
   infantsOnLap: number;
 }
 
-export function FlightSearch() {
+interface FlightSearchProps {
+  setFlights: (itinerary: Itinerary[] | undefined) => void;
+}
+
+export const FlightSearch = ({ setFlights }: FlightSearchProps) => {
   const [tripType, setTripType] = useState<TripType>("round-trip");
   const [classType, setClassType] = useState<ClassType>("economy");
   const [passengers, setPassengers] = useState<Passengers>({
@@ -29,6 +35,56 @@ export function FlightSearch() {
     infantsInSeat: 0,
     infantsOnLap: 0,
   });
+  const [originQuery, setOriginQuery] = useState("");
+  const [destinationQuery, setDestinationQuery] = useState("");
+  const [origin, setOrigin] = useState<Airport | undefined>();
+  const [destination, setDestination] = useState<Airport | undefined>();
+  const [departureDate, setDepartureDate] = useState<string>("");
+  const [returnDate, setReturnDate] = useState<string | undefined>(undefined);
+
+  const {
+    airports: originAirports,
+    error: originError,
+    isLoading: originLoading,
+  } = useAirportSearch({ query: originQuery });
+  const {
+    airports: destinationAirports,
+    error: destinationError,
+    isLoading: destinationLoading,
+  } = useAirportSearch({ query: destinationQuery });
+
+  const {
+    flights,
+    isLoading,
+    refetch: refetchFlights,
+  } = useFlightSearch({
+    date: departureDate,
+    returnDate,
+    adults: passengers.adults,
+    children: passengers.children,
+    infantsInSeat: passengers.infantsInSeat,
+    infantsOnLap: passengers.infantsOnLap,
+    cabinClass: classType,
+    enabled: false,
+    destinationEntityId: destination?.entityId || "",
+    destinationSkyId: destination?.skyId || "",
+    originEntityId: origin?.entityId || "",
+    originSkyId: origin?.skyId || "",
+  });
+
+  const isDisabled = !origin || !destination || !departureDate || isLoading;
+
+  const handleSearch = () => {
+    if (origin && destination && departureDate) {
+      refetchFlights();
+    }
+  };
+
+  useEffect(() => {
+    if (flights && setFlights) {
+      setFlights(flights);
+    }
+  }, [flights, setFlights]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -68,7 +124,16 @@ export function FlightSearch() {
               src={circleIcon}
               className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-foreground"
             />
-            <Input type="text" placeholder="From?" className="pl-12" />
+            <Autocomplete
+              placeholder="From?"
+              value={origin}
+              onChange={setOriginQuery}
+              suggestions={originAirports || []}
+              loading={originLoading}
+              error={originError}
+              inputClassName="pl-12"
+              onSelect={(airport) => setOrigin(airport)}
+            />
           </div>
 
           <button
@@ -83,22 +148,39 @@ export function FlightSearch() {
               src={locationIcon}
               className="absolute left-5 top-1/2 transform -translate-y-1/2 w-5 h-5 text-foreground"
             />
-            <Input type="text" placeholder="Where to?" className="pl-14" />
+            <Autocomplete
+              placeholder="Where to?"
+              value={destination}
+              onChange={setDestinationQuery}
+              suggestions={destinationAirports || []}
+              loading={destinationLoading}
+              error={destinationError}
+              onSelect={(airport) => setDestination(airport)}
+              inputClassName="pl-12"
+            />
           </div>
         </div>
 
         <div className="flex min-w-[300px] items-center gap-2 relative">
-          <DatePickerWithRange />
+          <DatePickerWithRange
+            onChange={(dates) => {
+              const { startDate, endDate } = dates;
+              setDepartureDate(startDate.toISOString());
+              setReturnDate(endDate?.toISOString());
+            }}
+          />
         </div>
         <Button
           size="lg"
-          className="absolute rounded-full -bottom-5 left-1/2 -translate-x-1/2 flex items-center justify-center"
+          className="disabled:bg-muted disabled:opacity-100 absolute rounded-full -bottom-5 left-1/2 -translate-x-1/2 flex items-center justify-center"
           variant="default"
+          onClick={handleSearch}
+          disabled={isDisabled}
         >
-          <SVG src={searchIcon} className="w-5 h-5 mr-2 text-accent" />
+          {isLoading ? <Spinner className="mr-2" /> : null}
           Search
         </Button>
       </div>
     </div>
   );
-}
+};
