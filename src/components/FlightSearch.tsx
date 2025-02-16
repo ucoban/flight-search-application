@@ -9,10 +9,11 @@ import SVG from "react-inlinesvg";
 import { PassengerSelect } from "./PassengerSelect";
 import Autocomplete from "./ui/Autocomplete";
 import { Button } from "./ui/button";
-import { DatePickerWithRange } from "./ui/date-range-picker";
+import { DateRangePicker } from "./ui/date-range-picker";
 import Spinner from "./ui/Spinner";
 
-type TripType = "round-trip" | "one-way" | "multi-city";
+type TripType = "round-trip" | "one-way";
+// | "multi-city";
 type ClassType = "economy" | "premium-economy" | "business" | "first";
 
 interface Passengers {
@@ -46,11 +47,13 @@ export const FlightSearch = ({ setFlights }: FlightSearchProps) => {
     airports: originAirports,
     error: originError,
     isLoading: originLoading,
+    isFetched: originFetched,
   } = useAirportSearch({ query: originQuery });
   const {
     airports: destinationAirports,
     error: destinationError,
     isLoading: destinationLoading,
+    isFetched: destinationFetched,
   } = useAirportSearch({ query: destinationQuery });
 
   const {
@@ -72,32 +75,52 @@ export const FlightSearch = ({ setFlights }: FlightSearchProps) => {
     originSkyId: origin?.skyId || "",
   });
 
-  const isDisabled = !origin || !destination || !departureDate || isLoading;
+  const isDisabled =
+    !origin || !destination || !departureDate || isLoading || (tripType === "round-trip" && !returnDate);
 
   const handleSearch = () => {
-    if (origin && destination && departureDate) {
+    if (origin && destination && departureDate && (tripType === "one-way" || returnDate)) {
+      refetchFlights();
+    }
+  };
+
+  const handleTripTypeChange = (value: string) => {
+    setTripType(value as TripType);
+    if (value === "one-way") {
+      setReturnDate(undefined);
+    }
+  };
+
+  const handleSwitchAirports = () => {
+    const tempOrigin = origin;
+    const tempQuery = originQuery;
+
+    setOrigin(destination);
+    setOriginQuery(destinationQuery);
+    setDestination(tempOrigin);
+    setDestinationQuery(tempQuery);
+
+    // If all required fields are present, trigger a new search
+    if (origin && destination && departureDate && (tripType === "one-way" || returnDate)) {
       refetchFlights();
     }
   };
 
   useEffect(() => {
-    if (flights && setFlights) {
-      setFlights(flights);
-    }
+    setFlights(flights);
   }, [flights, setFlights]);
 
   return (
     <div className="flex flex-col gap-4">
       {/* Top Selectors */}
       <div className="flex items-center gap-4">
-        <Select value={tripType} onValueChange={(value) => setTripType(value as TripType)}>
+        <Select value={tripType} onValueChange={handleTripTypeChange}>
           <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="Trip type" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="round-trip">Round trip</SelectItem>
             <SelectItem value="one-way">One way</SelectItem>
-            <SelectItem value="multi-city">Multi-city</SelectItem>
           </SelectContent>
         </Select>
 
@@ -117,7 +140,7 @@ export const FlightSearch = ({ setFlights }: FlightSearchProps) => {
       </div>
 
       {/* Existing Search Form */}
-      <div className="relative p-7 shadow-sm flex gap-2 border rounded-md border-muted">
+      <div className="relative p-7 shadow-sm flex flex-col md:flex-row gap-2 border rounded-md border-muted">
         <div className="flex flex-1 items-center gap-2 relative">
           <div className="relative flex-1">
             <SVG
@@ -127,17 +150,19 @@ export const FlightSearch = ({ setFlights }: FlightSearchProps) => {
             <Autocomplete
               placeholder="From?"
               value={origin}
+              query={originQuery}
               onChange={setOriginQuery}
               suggestions={originAirports || []}
               loading={originLoading}
               error={originError}
               inputClassName="pl-12"
               onSelect={(airport) => setOrigin(airport)}
+              isFetched={originFetched}
             />
           </div>
 
           <button
-            onClick={() => {}}
+            onClick={handleSwitchAirports}
             className="absolute left-1/2 -translate-x-1/2 z-10 w-10 h-10 rounded-full bg-background border border-input flex items-center justify-center hover:bg-accent hover:text-accent-foreground"
           >
             <SVG src={leftRight} className="w-5 h-5 text-foreground" />
@@ -151,18 +176,23 @@ export const FlightSearch = ({ setFlights }: FlightSearchProps) => {
             <Autocomplete
               placeholder="Where to?"
               value={destination}
+              query={destinationQuery}
               onChange={setDestinationQuery}
               suggestions={destinationAirports || []}
               loading={destinationLoading}
               error={destinationError}
               onSelect={(airport) => setDestination(airport)}
               inputClassName="pl-12"
+              isFetched={destinationFetched}
             />
           </div>
         </div>
 
         <div className="flex min-w-[300px] items-center gap-2 relative">
-          <DatePickerWithRange
+          <DateRangePicker
+            tripType={tripType}
+            departureDate={departureDate}
+            returnDate={returnDate}
             onChange={(dates) => {
               const { startDate, endDate } = dates;
               setDepartureDate(startDate.toISOString());
@@ -172,7 +202,7 @@ export const FlightSearch = ({ setFlights }: FlightSearchProps) => {
         </div>
         <Button
           size="lg"
-          className="disabled:bg-muted disabled:opacity-100 absolute rounded-full -bottom-5 left-1/2 -translate-x-1/2 flex items-center justify-center"
+          className="disabled:bg-muted disabled:text-muted-foreground/50 disabled:opacity-100 absolute rounded-full -bottom-5 left-1/2 -translate-x-1/2 flex items-center justify-center"
           variant="default"
           onClick={handleSearch}
           disabled={isDisabled}
