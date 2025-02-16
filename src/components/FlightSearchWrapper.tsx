@@ -9,7 +9,7 @@ const FlightSearchWrapper = () => {
   return (
     <div className="flex flex-col gap-16">
       <FlightSearch setFlights={setFlights} />
-      <FlightListing flights={flights} />
+      {flights && flights.length > 0 && <FlightListing flights={flights} />}
     </div>
   );
 };

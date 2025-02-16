@@ -15,6 +15,9 @@ import {
 import { ArrowUpDown } from "lucide-react";
 import * as React from "react";
 import { Button } from "./ui/button";
+import FlightDetails from "./FlightDetails";
+import FlightDuration from "./FlightDuration";
+import FlightStops from "./FlightStops";
 
 interface FlightListingProps {
   flights: Itinerary[] | undefined;
@@ -136,14 +139,40 @@ const FlightListing: React.FC<FlightListingProps> = ({ flights }) => {
 
   return (
     <div className="overflow-x-auto rounded-md border">
-      <Table className="min-w-full shadow-md rounded-lg">
+      <div className="block md:hidden">
+        {data.map((flight, index) => (
+          <div key={index} className="border-b p-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
+                <img src={flight.legs[0].carriers.marketing[0].logoUrl} alt="Airline Logo" className="h-8 w-8 mr-2" />
+                <div>
+                  <div className="font-medium">{flight.legs[0].carriers.marketing[0].name}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {flight.legs[0].origin.displayCode} - {flight.legs[0].destination.displayCode}
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="font-bold text-lg">{flight.price.formatted}</div>
+                <div className="text-sm text-muted-foreground">Round trip</div>
+              </div>
+            </div>
+            <div className="mt-2">
+              <FlightDetails flight={flight} />
+              <FlightStops stopCount={flight.legs[0].stopCount} />
+              <FlightDuration leg={flight.legs[0]} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <Table className="min-w-full shadow-md rounded-lg hidden md:table">
         <TableHeader className="">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id} className="">
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
-                  className="px-4 py-2 text-left cursor-pointer"
+                  className="px-4 py-2 text-left cursor-pointer text-sm font-medium"
                   onClick={header.column.getToggleSortingHandler()}
                 >
                   {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
@@ -156,11 +185,11 @@ const FlightListing: React.FC<FlightListingProps> = ({ flights }) => {
           {table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
-              className="border-b border-muted cursor-pointer hover:bg-muted"
+              className="border-b cursor-pointer transition-colors duration-200"
               onClick={() => (window.location.href = `https://external-ticketing.com/purchase/${row.original.id}`)}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="px-4 py-2">
+                <TableCell key={cell.id} className="px-4 py-2 text-sm">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
