@@ -7,7 +7,7 @@ export function Hero() {
   const { theme } = useTheme();
 
   return (
-    <div className="relative w-full h-[300px] overflow-hidden transition-colors duration-300">
+    <div className="relative w-full h-[200px] md:h-[300px] overflow-hidden transition-colors duration-300">
       {/* Background Image */}
       <div className="absolute inset-0">
         <SVG
@@ -22,7 +22,7 @@ export function Hero() {
 
       {/* Content */}
       <div className="relative h-full flex flex-col items-center justify-center">
-        <h1 className="text-7xl font-bold text-foreground transition-colors duration-300">Flights</h1>
+        <h1 className="text-4xl md:text-7xl font-bold text-foreground transition-colors duration-300">Flights</h1>
       </div>
     </div>
   );

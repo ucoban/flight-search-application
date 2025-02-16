@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Users } from "lucide-react";
@@ -14,7 +15,16 @@ interface PassengerSelectProps {
   onChange: (passengers: Passengers) => void;
 }
 
-export function PassengerSelect({ passengers, onChange }: PassengerSelectProps) {
+const PASSENGER_OPTIONS = [
+  { key: "adults", label: "Adults", subtext: "", min: 1, max: 9 },
+  { key: "children", label: "Children", subtext: "Aged 2-11", min: 0, max: 8 },
+  { key: "infantsInSeat", label: "Infants", subtext: "In seat", min: 0, max: 8 },
+  { key: "infantsOnLap", label: "Infants", subtext: "On lap", min: 0, max: 8 },
+];
+
+export const PassengerSelect: React.FC<PassengerSelectProps> = ({ passengers, onChange }) => {
+  const [open, setOpen] = useState(false);
+
   const totalPassengers = Object.values(passengers).reduce((a, b) => a + b, 0);
   const MAX_TOTAL_PASSENGERS = 9;
 
@@ -31,7 +41,7 @@ export function PassengerSelect({ passengers, onChange }: PassengerSelectProps) 
   };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" className="w-[200px] justify-start">
           <Users className="mr-2 h-4 w-4" />
@@ -40,12 +50,7 @@ export function PassengerSelect({ passengers, onChange }: PassengerSelectProps) 
       </PopoverTrigger>
       <PopoverContent className="w-80">
         <div className="grid gap-4 p-2">
-          {[
-            { key: "adults", label: "Adults", subtext: "", min: 1, max: 9 },
-            { key: "children", label: "Children", subtext: "Aged 2-11", min: 0, max: 8 },
-            { key: "infantsInSeat", label: "Infants", subtext: "In seat", min: 0, max: 8 },
-            { key: "infantsOnLap", label: "Infants", subtext: "On lap", min: 0, max: 8 },
-          ].map(({ key, label, subtext, min, max }) => (
+          {PASSENGER_OPTIONS.map(({ key, label, subtext, min, max }) => (
             <div key={key} className="flex items-center justify-between">
               <div className="flex flex-col">
                 <span className="text-sm font-medium">{label}</span>
@@ -88,10 +93,12 @@ export function PassengerSelect({ passengers, onChange }: PassengerSelectProps) 
             >
               Reset
             </Button>
-            <Button onClick={() => document.dispatchEvent(new Event("click"))}>Done</Button>
+            <Button onClick={() => setOpen(false)}>Done</Button>
           </div>
         </div>
       </PopoverContent>
     </Popover>
   );
-}
+};
+
+export default PassengerSelect;
