@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-// Base Response Type
 export interface BaseResponse<T> {
   status: boolean;
   timestamp: number;
@@ -7,7 +5,7 @@ export interface BaseResponse<T> {
 }
 
 // Airport Types
-export interface AirportResponse extends BaseResponse<Airport[]> {}
+export type AirportResponse = BaseResponse<Airport[]>;
 
 export interface Airport {
   skyId: string;
@@ -35,12 +33,11 @@ export interface Airport {
   };
 }
 
-export interface NearbyAirportsResponse
-  extends BaseResponse<{
-    current: Airport;
-    nearby: Airport[];
-    recent: Airport[];
-  }> {}
+export type NearbyAirportsResponse = BaseResponse<{
+  current: Airport;
+  nearby: Airport[];
+  recent: Airport[];
+}>;
 
 // Flight Search Types
 export interface FlightSearchParams {
@@ -66,13 +63,12 @@ export interface PriceCalendarParams {
   month: string; // YYYY-MM format
 }
 
-export interface PriceCalendarResponse
-  extends BaseResponse<{
-    dates: {
-      date: string;
-      price: number;
-    }[];
-  }> {}
+export type PriceCalendarResponse = BaseResponse<{
+  dates: {
+    date: string;
+    price: number;
+  }[];
+}>;
 
 // Flight Everywhere Types
 export interface FlightEverywhereParams {
@@ -98,20 +94,18 @@ export interface MultiStopFlightParams {
 }
 
 // Config Types
-export interface ConfigResponse
-  extends BaseResponse<{
-    currencies: string[];
-    languages: string[];
-    countries: string[];
-  }> {}
+export type ConfigResponse = BaseResponse<{
+  currencies: string[];
+  languages: string[];
+  countries: string[];
+}>;
 
 // Locale Types
-export interface LocaleResponse
-  extends BaseResponse<{
-    currency: string;
-    language: string;
-    country: string;
-  }> {}
+export type LocaleResponse = BaseResponse<{
+  currency: string;
+  language: string;
+  country: string;
+}>;
 
 export interface Root {
   status: boolean;

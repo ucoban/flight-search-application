@@ -1,13 +1,4 @@
-import {
-  AirportResponse,
-  ConfigResponse,
-  FlightSearchParams,
-  LocaleResponse,
-  NearbyAirportsResponse,
-  PriceCalendarParams,
-  PriceCalendarResponse,
-  Root,
-} from "@/types/sky-scrapper";
+import { AirportResponse, FlightSearchParams, Root } from "@/types/sky-scrapper";
 import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_SKY_SCRAPPER_API_URL;
@@ -23,7 +14,20 @@ const api = axios.create({
   },
 });
 
-// Airport Endpoints
+// Add an interceptor to handle API response status
+api.interceptors.response.use(
+  (response) => {
+    const data = response.data;
+    if (!data.status) {
+      throw new Error(data.data.messages);
+    }
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export const searchAirports = async (query: string): Promise<AirportResponse> => {
   const response = await api.get("/v1/flights/searchAirport", {
     params: { query },
@@ -31,35 +35,9 @@ export const searchAirports = async (query: string): Promise<AirportResponse> =>
   return response.data;
 };
 
-export const getNearbyAirports = async (lat: number, lng: number): Promise<NearbyAirportsResponse> => {
-  const response = await api.get("/v1/flights/getNearByAirports", {
-    params: { lat, lng },
-  });
-  return response.data;
-};
-
-// Flight Search Endpoints
 export const searchFlights = async (params: FlightSearchParams): Promise<Root> => {
   const response = await api.get("/v2/flights/searchFlights", {
     params,
   });
-  return response.data;
-};
-
-export const getPriceCalendar = async (params: PriceCalendarParams): Promise<PriceCalendarResponse> => {
-  const response = await api.get("/v1/flights/getPriceCalendar", {
-    params,
-  });
-  return response.data;
-};
-
-// Config Endpoints
-export const getConfig = async (): Promise<ConfigResponse> => {
-  const response = await api.get("/v1/config");
-  return response.data;
-};
-
-export const getLocale = async (): Promise<LocaleResponse> => {
-  const response = await api.get("/v1/locale");
   return response.data;
 };
