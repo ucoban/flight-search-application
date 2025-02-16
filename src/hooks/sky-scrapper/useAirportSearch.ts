@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { searchAirports } from "@/services/sky-scrapper";
 import type { Airport } from "@/types/sky-scrapper";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 interface UseAirportSearchProps {
   query: string;
@@ -22,7 +22,7 @@ const useAirportSearch = ({ query, enabled = true, minQueryLength = 2 }: UseAirp
     };
   }, [query]);
 
-  const { data, error, isLoading } = useQuery({
+  const { data, error, isLoading, isFetched } = useQuery({
     queryKey: ["airports", debouncedQuery],
     queryFn: () => searchAirports(debouncedQuery),
     enabled: enabled && !!debouncedQuery && debouncedQuery.length >= minQueryLength,
@@ -33,6 +33,7 @@ const useAirportSearch = ({ query, enabled = true, minQueryLength = 2 }: UseAirp
     airports: data as Airport[] | undefined,
     error,
     isLoading,
+    isFetched,
   };
 };
 

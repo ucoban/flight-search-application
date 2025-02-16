@@ -23,8 +23,6 @@ const useFlightSearch = (params: UseFlightSearchProps) => {
     },
     enabled: enabled,
     staleTime: 1000 * 60 * 2,
-
-    // select: (response) => response.data.itineraries,
   });
 
   return {
