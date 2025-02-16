@@ -14,7 +14,7 @@ export function Layout({ children }: LayoutProps) {
           <ThemeToggle />
         </div>
       </header>
-      <main className="max-w-7xl mx-auto px-4">{children}</main>
+      <main className="max-w-7xl mx-auto px-4 mb-4">{children}</main>
     </div>
   );
 }

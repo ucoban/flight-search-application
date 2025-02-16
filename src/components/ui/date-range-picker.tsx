@@ -1,30 +1,29 @@
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import * as React from "react";
-import { DateRange } from "react-day-picker";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-export function DatePickerWithRange({
+export function DateRangePicker({
   className,
   onChange,
+  tripType = "round-trip",
+  departureDate,
+  returnDate,
 }: {
   className?: string;
   onChange?: (dates: { startDate: Date; endDate?: Date }) => void;
+  tripType?: "round-trip" | "one-way";
+  departureDate: string;
+  returnDate?: string;
 }) {
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: undefined,
-    to: undefined,
-  });
-
-  React.useEffect(() => {
-    if (onChange && date?.from) {
-      onChange({ startDate: date.from, endDate: date.to ?? undefined });
-    }
-  }, [date, onChange]);
+  const today = new Date();
+  const date = {
+    from: departureDate ? new Date(departureDate) : undefined,
+    to: returnDate ? new Date(returnDate) : undefined,
+  };
 
   return (
     <div className={cn("grid gap-2 w-full", className)}>
@@ -33,33 +32,66 @@ export function DatePickerWithRange({
           <Button
             id="date"
             variant={"outline"}
-            className={cn("h-14 justify-start text-left font-normal", !date && "text-muted-foreground")}
+            className={cn("h-14 justify-start text-left font-normal", !date.from && "text-muted-foreground")}
           >
-            <CalendarIcon />
-            {date?.from ? (
-              date.to ? (
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {date.from ? (
+              date.to || tripType === "one-way" ? (
                 <div className="flex gap-x-4 relative justify-around w-full">
                   <div>{format(date.from, "LLL dd, y")}</div>
-                  <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[1px] bg-muted-foreground "></div>
-                  <div>{format(date.to, "LLL dd, y")}</div>
+                  {tripType === "round-trip" && (
+                    <>
+                      <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[1px] bg-muted-foreground"></div>
+                      <div>{format(date.to as Date, "LLL dd, y")}</div>
+                    </>
+                  )}
                 </div>
               ) : (
-                format(date.from, "LLL dd, y")
+                <div className="flex gap-x-4 relative justify-around w-full">
+                  <div>{format(date.from, "LLL dd, y")}</div>
+                  <div className="text-muted-foreground">Select return date</div>
+                </div>
               )
             ) : (
-              <span>Pick a date</span>
+              <span className="text-muted-foreground">
+                {tripType === "round-trip" ? "Select departure & return" : "Select departure date"}
+              </span>
             )}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="end">
-          <Calendar
-            initialFocus
-            mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={setDate}
-            numberOfMonths={2}
-          />
+          {tripType === "round-trip" ? (
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={date.from}
+              selected={date}
+              onSelect={(newDate) => {
+                if (newDate && onChange) {
+                  onChange({
+                    startDate: newDate.from as Date,
+                    endDate: newDate.to,
+                  });
+                }
+              }}
+              numberOfMonths={2}
+              disabled={{ before: today }}
+            />
+          ) : (
+            <Calendar
+              initialFocus
+              mode="single"
+              defaultMonth={date.from}
+              selected={date.from}
+              onSelect={(selectedDate) => {
+                if (selectedDate && onChange) {
+                  onChange({ startDate: selectedDate });
+                }
+              }}
+              numberOfMonths={2}
+              disabled={{ before: today }}
+            />
+          )}
         </PopoverContent>
       </Popover>
     </div>
