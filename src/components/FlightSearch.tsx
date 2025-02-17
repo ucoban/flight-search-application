@@ -4,7 +4,7 @@ import locationIcon from "@/assets/location-icon.svg";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAirportSearch, useFlightSearch } from "@/hooks/sky-scrapper";
 import type { Airport, Itinerary } from "@/types/sky-scrapper";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import SVG from "react-inlinesvg";
 import { PassengerSelect } from "./PassengerSelect";
 import Autocomplete from "./ui/Autocomplete";
@@ -24,10 +24,11 @@ interface Passengers {
 }
 
 interface FlightSearchProps {
-  setFlights: (itinerary: Itinerary[] | undefined) => void;
+  onFlightsChange: (itinerary: Itinerary[] | undefined) => void;
+  onFlightsFetched: (isFetched: boolean) => void;
 }
 
-export const FlightSearch = ({ setFlights }: FlightSearchProps) => {
+export const FlightSearch = ({ onFlightsChange, onFlightsFetched }: FlightSearchProps) => {
   const [tripType, setTripType] = useState<TripType>("round-trip");
   const [classType, setClassType] = useState<ClassType>("economy");
   const [passengers, setPassengers] = useState<Passengers>({
@@ -57,8 +58,8 @@ export const FlightSearch = ({ setFlights }: FlightSearchProps) => {
   } = useAirportSearch({ query: destinationQuery });
 
   const {
-    flights,
-    isLoading,
+    isFetching,
+    // isFetched: flightsFetched,
     refetch: refetchFlights,
   } = useFlightSearch({
     date: departureDate,
@@ -76,11 +77,13 @@ export const FlightSearch = ({ setFlights }: FlightSearchProps) => {
   });
 
   const isDisabled =
-    !origin || !destination || !departureDate || isLoading || (tripType === "round-trip" && !returnDate);
+    !origin || !destination || !departureDate || isFetching || (tripType === "round-trip" && !returnDate);
 
-  const handleSearch = () => {
+  const handleFetchFlights = async () => {
     if (origin && destination && departureDate && (tripType === "one-way" || returnDate)) {
-      refetchFlights();
+      const data = await refetchFlights();
+      onFlightsChange(data?.data?.data.itineraries);
+      onFlightsFetched(true);
     }
   };
 
@@ -99,23 +102,14 @@ export const FlightSearch = ({ setFlights }: FlightSearchProps) => {
     setOriginQuery(destinationQuery);
     setDestination(tempOrigin);
     setDestinationQuery(tempQuery);
-
-    // If all required fields are present, trigger a new search
-    if (origin && destination && departureDate && (tripType === "one-way" || returnDate)) {
-      refetchFlights();
-    }
   };
-
-  useEffect(() => {
-    setFlights(flights);
-  }, [flights, setFlights]);
 
   return (
     <div className="flex flex-col gap-4">
       {/* Top Selectors */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-1 md:gap-4">
         <Select value={tripType} onValueChange={handleTripTypeChange}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-[120px] md:w-[140px]">
             <SelectValue placeholder="Trip type" />
           </SelectTrigger>
           <SelectContent>
@@ -127,20 +121,19 @@ export const FlightSearch = ({ setFlights }: FlightSearchProps) => {
         <PassengerSelect passengers={passengers} onChange={setPassengers} />
 
         <Select value={classType} onValueChange={(value) => setClassType(value as ClassType)}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="max-w-[120px] md:max-w-[180px]">
             <SelectValue placeholder="Class" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="economy">Economy</SelectItem>
-            <SelectItem value="premium-economy">Premium Economy</SelectItem>
+            <SelectItem value="premium_economy">Premium Economy</SelectItem>
             <SelectItem value="business">Business</SelectItem>
             <SelectItem value="first">First</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Existing Search Form */}
-      <div className="relative p-7 shadow-sm flex flex-col md:flex-row gap-2 border rounded-md border-muted">
+      <div className="relative p-4 pb-7 md:p-7 shadow-sm flex flex-col md:flex-row gap-2 border rounded-md border-muted">
         <div className="flex flex-1 items-center gap-2 relative">
           <div className="relative flex-1">
             <SVG
@@ -188,7 +181,7 @@ export const FlightSearch = ({ setFlights }: FlightSearchProps) => {
           </div>
         </div>
 
-        <div className="flex min-w-[300px] items-center gap-2 relative">
+        <div className="flex md:min-w-[300px] items-center gap-2 relative">
           <DateRangePicker
             tripType={tripType}
             departureDate={departureDate}
@@ -204,10 +197,10 @@ export const FlightSearch = ({ setFlights }: FlightSearchProps) => {
           size="lg"
           className="disabled:bg-muted disabled:text-muted-foreground/50 disabled:opacity-100 absolute rounded-full -bottom-5 left-1/2 -translate-x-1/2 flex items-center justify-center"
           variant="default"
-          onClick={handleSearch}
+          onClick={handleFetchFlights}
           disabled={isDisabled}
         >
-          {isLoading ? <Spinner className="mr-2" /> : null}
+          {isFetching ? <Spinner className="mr-2" /> : null}
           Search
         </Button>
       </div>

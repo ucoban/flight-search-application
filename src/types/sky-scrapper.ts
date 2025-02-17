@@ -54,6 +54,7 @@ export interface FlightSearchParams {
   cabinClass: string;
   currencyCode?: string;
   stops?: number;
+  limit?: number;
 }
 
 // Price Calendar Types
