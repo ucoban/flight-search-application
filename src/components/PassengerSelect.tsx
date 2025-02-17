@@ -1,13 +1,12 @@
-import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Users } from "lucide-react";
+import React, { useState } from "react";
 
-interface Passengers {
+export interface Passengers {
   adults: number;
-  children: number;
-  infantsInSeat: number;
-  infantsOnLap: number;
+  childrens: number;
+  infants: number;
 }
 
 interface PassengerSelectProps {
@@ -17,9 +16,8 @@ interface PassengerSelectProps {
 
 const PASSENGER_OPTIONS = [
   { key: "adults", label: "Adults", subtext: "", min: 1, max: 9 },
-  { key: "children", label: "Children", subtext: "Aged 2-11", min: 0, max: 8 },
-  { key: "infantsInSeat", label: "Infants", subtext: "In seat", min: 0, max: 8 },
-  { key: "infantsOnLap", label: "Infants", subtext: "On lap", min: 0, max: 8 },
+  { key: "childrens", label: "Children", subtext: "Aged 2-11", min: 0, max: 8 },
+  { key: "infants", label: "Infants", subtext: "Under 2 years", min: 0, max: 8 },
 ];
 
 export const PassengerSelect: React.FC<PassengerSelectProps> = ({ passengers, onChange }) => {
@@ -90,10 +88,7 @@ export const PassengerSelect: React.FC<PassengerSelectProps> = ({ passengers, on
             <p className="text-xs text-destructive">Maximum {MAX_TOTAL_PASSENGERS} passengers allowed</p>
           )}
           <div className="flex justify-end gap-2 mt-2 pt-2 border-t">
-            <Button
-              variant="outline"
-              onClick={() => onChange({ adults: 1, children: 0, infantsInSeat: 0, infantsOnLap: 0 })}
-            >
+            <Button variant="outline" onClick={() => onChange({ adults: 1, childrens: 0, infants: 0 })}>
               Reset
             </Button>
             <Button onClick={() => setOpen(false)}>Done</Button>
