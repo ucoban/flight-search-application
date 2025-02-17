@@ -6,7 +6,7 @@ import { useAirportSearch, useFlightSearch } from "@/hooks/sky-scrapper";
 import type { Airport, Itinerary } from "@/types/sky-scrapper";
 import { useState } from "react";
 import SVG from "react-inlinesvg";
-import { PassengerSelect } from "./PassengerSelect";
+import { Passengers, PassengerSelect } from "./PassengerSelect";
 import Autocomplete from "./ui/Autocomplete";
 import { Button } from "./ui/button";
 import { DateRangePicker } from "./ui/date-range-picker";
@@ -15,13 +15,6 @@ import Spinner from "./ui/Spinner";
 type TripType = "round-trip" | "one-way";
 // | "multi-city";
 type ClassType = "economy" | "premium-economy" | "business" | "first";
-
-interface Passengers {
-  adults: number;
-  children: number;
-  infantsInSeat: number;
-  infantsOnLap: number;
-}
 
 interface FlightSearchProps {
   onFlightsChange: (itinerary: Itinerary[] | undefined) => void;
@@ -33,9 +26,8 @@ export const FlightSearch = ({ onFlightsChange, onFlightsFetched }: FlightSearch
   const [classType, setClassType] = useState<ClassType>("economy");
   const [passengers, setPassengers] = useState<Passengers>({
     adults: 1,
-    children: 0,
-    infantsInSeat: 0,
-    infantsOnLap: 0,
+    childrens: 0,
+    infants: 0,
   });
   const [originQuery, setOriginQuery] = useState("");
   const [destinationQuery, setDestinationQuery] = useState("");
@@ -65,9 +57,8 @@ export const FlightSearch = ({ onFlightsChange, onFlightsFetched }: FlightSearch
     date: departureDate,
     returnDate,
     adults: passengers.adults,
-    children: passengers.children,
-    infantsInSeat: passengers.infantsInSeat,
-    infantsOnLap: passengers.infantsOnLap,
+    childrens: passengers.childrens,
+    infants: passengers.infants,
     cabinClass: classType,
     enabled: false,
     destinationEntityId: destination?.entityId || "",

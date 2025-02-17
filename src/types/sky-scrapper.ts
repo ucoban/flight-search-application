@@ -48,9 +48,8 @@ export interface FlightSearchParams {
   destinationEntityId: string;
   returnDate?: string;
   adults: number;
-  children?: number;
-  infantsInSeat?: number;
-  infantsOnLap?: number;
+  childrens?: number;
+  infants?: number;
   cabinClass: string;
   currencyCode?: string;
   stops?: number;
