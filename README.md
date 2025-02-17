@@ -4,7 +4,7 @@ A modern flight search application built with React and TypeScript, inspired by 
 
 ## Demo
 
-- 🌐 **Live Demo**: [Flight Search App](https://flight-search-application-git-dev-ucobans-projects.vercel.app/)
+- 🌐 **Live Demo**: [Flight Search App](https://flight-search-application.vercel.app/)
 
 ## Tech Stack
 
