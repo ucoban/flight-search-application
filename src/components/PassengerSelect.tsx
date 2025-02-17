@@ -43,12 +43,15 @@ export const PassengerSelect: React.FC<PassengerSelectProps> = ({ passengers, on
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="w-[200px] justify-start">
-          <Users className="mr-2 h-4 w-4" />
-          {totalPassengers} {totalPassengers === 1 ? "passenger" : "passengers"}
+        <Button variant="outline" className="h-9 md:h-10 w-[60px] md:w-[200px] px-2 md:px-3 justify-start">
+          <Users className="mr-0 md:mr-2 h-4 w-4" />
+          <span className="hidden md:inline">
+            {totalPassengers} {totalPassengers === 1 ? "passenger" : "passengers"}
+          </span>
+          <span className="md:hidden">{totalPassengers}</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80">
+      <PopoverContent className="w-[calc(100vw-2rem)] md:w-[320px] p-2">
         <div className="grid gap-4 p-2">
           {PASSENGER_OPTIONS.map(({ key, label, subtext, min, max }) => (
             <div key={key} className="flex items-center justify-between">
