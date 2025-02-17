@@ -46,8 +46,8 @@ pnpm install
 
 ```bash
 VITE_SKY_SCRAPPER_API_URL=https://sky-scrapper.p.rapidapi.com/api
-VITE_RAPID_API_KEY=your_rapidapi_key_here
-VITE_RAPID_API_HOST=sky-scrapper.p.rapidapi.com
+VITE_SKY_SCRAPPER_API_KEY=your_rapidapi_key_here
+VITE_SKY_SCRAPPER_API_HOST=sky-scrapper.p.rapidapi.com
 ```
 
 4. Start the development server
