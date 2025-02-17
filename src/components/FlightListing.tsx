@@ -14,13 +14,14 @@ import {
 } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import * as React from "react";
-import { Button } from "./ui/button";
 import FlightDetails from "./FlightDetails";
 import FlightDuration from "./FlightDuration";
 import FlightStops from "./FlightStops";
+import { Button } from "./ui/button";
 
 interface FlightListingProps {
   flights: Itinerary[] | undefined;
+  isFetched: boolean;
 }
 
 const columns: ColumnDef<Itinerary>[] = [
@@ -110,8 +111,7 @@ const columns: ColumnDef<Itinerary>[] = [
   },
 ];
 
-const FlightListing: React.FC<FlightListingProps> = ({ flights }) => {
-  console.log("Flights data:", flights); // Debugging line
+const FlightListing = ({ flights, isFetched }: FlightListingProps) => {
   const data = React.useMemo(() => flights || [], [flights]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -137,38 +137,50 @@ const FlightListing: React.FC<FlightListingProps> = ({ flights }) => {
     },
   });
 
+  if (!isFetched) {
+    return null;
+  }
+
+  if (isFetched && data.length === 0) {
+    return <div className="text-center text-muted-foreground">No flights found</div>;
+  }
+
   return (
-    <div className="overflow-x-auto rounded-md border">
+    <section className="overflow-x-auto rounded-md border" aria-label="Flight search results">
       <div className="block md:hidden">
-        {data.map((flight, index) => (
-          <div key={index} className="border-b p-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <img src={flight.legs[0].carriers.marketing[0].logoUrl} alt="Airline Logo" className="h-8 w-8 mr-2" />
-                <div>
-                  <div className="font-medium">{flight.legs[0].carriers.marketing[0].name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {flight.legs[0].origin.displayCode} - {flight.legs[0].destination.displayCode}
+        {data.map((flight, index) => {
+          const leg = flight.legs[0];
+          const carrier = leg.carriers.marketing[0];
+          return (
+            <article key={index} className="border-b p-4">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center">
+                  <img src={carrier.logoUrl} alt={`${carrier.name} logo`} className="h-8 w-8 mr-2" />
+                  <div>
+                    <div className="font-medium">{carrier.name}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {leg.origin.displayCode} - {leg.destination.displayCode}
+                    </div>
                   </div>
                 </div>
+                <div className="text-right">
+                  <div className="font-bold text-lg">{flight.price.formatted}</div>
+                  <div className="text-sm text-muted-foreground">Round trip</div>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="font-bold text-lg">{flight.price.formatted}</div>
-                <div className="text-sm text-muted-foreground">Round trip</div>
+              <div className="mt-2">
+                <FlightDetails flight={flight} />
+                <FlightStops stopCount={leg.stopCount} />
+                <FlightDuration leg={leg} />
               </div>
-            </div>
-            <div className="mt-2">
-              <FlightDetails flight={flight} />
-              <FlightStops stopCount={flight.legs[0].stopCount} />
-              <FlightDuration leg={flight.legs[0]} />
-            </div>
-          </div>
-        ))}
+            </article>
+          );
+        })}
       </div>
       <Table className="min-w-full shadow-md rounded-lg hidden md:table">
-        <TableHeader className="">
+        <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="">
+            <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
@@ -186,10 +198,11 @@ const FlightListing: React.FC<FlightListingProps> = ({ flights }) => {
             <TableRow
               key={row.id}
               className="border-b cursor-pointer transition-colors duration-200"
-              onClick={() => (window.location.href = `https://external-ticketing.com/purchase/${row.original.id}`)}
+              onClick={() => console.log(row.original)}
+              role="row"
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="px-4 py-2 text-sm">
+                <TableCell key={cell.id} className="px-4 py-2 text-sm" role="cell">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
@@ -197,7 +210,7 @@ const FlightListing: React.FC<FlightListingProps> = ({ flights }) => {
           ))}
         </TableBody>
       </Table>
-    </div>
+    </section>
   );
 };
 

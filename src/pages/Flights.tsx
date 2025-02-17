@@ -1,7 +1,7 @@
 import FlightSearchWrapper from "@/components/FlightSearchWrapper";
 import { Hero } from "@/components/Hero";
 
-export function Flights() {
+const Flights = () => {
   return (
     <div className="flex flex-col items-center">
       <Hero />
@@ -10,4 +10,6 @@ export function Flights() {
       </div>
     </div>
   );
-}
+};
+
+export default Flights;
