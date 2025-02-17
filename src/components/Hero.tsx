@@ -7,8 +7,7 @@ export function Hero() {
   const { theme } = useTheme();
 
   return (
-    <div className="relative w-full h-[200px] md:h-[300px] overflow-hidden transition-colors duration-300">
-      {/* Background Image */}
+    <div className="relative w-full h-[18dvh] md:h-[300px] overflow-hidden transition-colors duration-300">
       <div className="absolute inset-0">
         <SVG
           src={lightThemeBackground}
